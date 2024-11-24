@@ -194,61 +194,6 @@ exports.register = async (req, res) => {
 
 
 
-// // Login Controller
-// exports.login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     // Validation: Check if both email and password are provided
-//     if (!email || !password) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Email and password are required" });
-//     }
-
-//     // Check if user exists in the database
-//     const user = await authModel.findOne({ email });
-//     if (!user) {
-//       return res
-//         .status(401)
-//         .json({ success: false, message: "Invalid email or password" });
-//     }
-
-//     // Compare password with the hashed password in the database
-//     const isPasswordValid = await bcrypt.compare(password, user.password);
-//     if (!isPasswordValid) {
-//       return res
-//         .status(401)
-//         .json({ success: false, message: "Invalid email or password" });
-//     }
-
-//     // Generate JWT token
-//     const token = JWT.sign(
-//       { _id: user._id, email: user.email, role: user.role },
-//       process.env.SECRET_KEY,
-//       { expiresIn: "7d" }
-//     );
-
-//     // Return the success response
-//     return res.status(200).json({
-//       success: true,
-//       message: "Login successful",
-//       user: {
-//         fullName: user.fullName,
-//         email: user.email,
-//         role: user.role,
-//       },
-//       token,
-//     });
-//   } catch (error) {
-//     console.error("Login Error:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "An error occurred during login. Please try again later.",
-//     });
-//   }
-// };
-
 
 
 
@@ -299,9 +244,6 @@ exports.login = async (req, res) => {
     });
   }
 };
-
-
-
 
 
 

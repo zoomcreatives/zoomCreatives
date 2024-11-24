@@ -17,7 +17,7 @@ import {
   X,
   Search as SearchIcon
 } from 'lucide-react';
-import { useAuth } from '../App';
+// import { useAuth } from '../App';
 import { useAdminStore } from '../store/adminStore';
 import GlobalSearch from './GlobalSearch';
 import NotesPanel from './notes/NotesPanel';
@@ -45,7 +45,7 @@ const getMenuItems = (isSuper: boolean) => {
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  // const { logout } = useAuth();
   const { currentAdmin } = useAdminStore();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -57,7 +57,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const menuItems = getMenuItems(isSuper);
 
   const handleLogout = () => {
-    logout();
+    // logout();
     navigate('/login');
   };
 

@@ -3,13 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { useAuth } from '../App';
+// import { useAuth } from '../App';
 import { validateAdminCredentials } from '../services/authService';
 import { useAdminStore } from '../store/adminStore';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  // const { login } = useAuth();
   const { setCurrentAdmin } = useAdminStore();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -35,7 +35,7 @@ export default function Login() {
       const admin = validateAdminCredentials(formData.username, formData.password);
       
       if (admin) {
-        login('admin', formData.username);
+        // login('admin', formData.username);
         setCurrentAdmin(admin);
         navigate('/dashboard');
       } else {

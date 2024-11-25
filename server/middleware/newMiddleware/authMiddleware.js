@@ -70,16 +70,54 @@ exports.requireLogin = async (req, res, next) => {
 
 
 
-exports.isAdmin = async (req, res, next) => {
-    try {
-      const user = await authModel.findById(req.user._id);
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ success: false, message: "Access Denied: Admins Only" });
-      }
-      next();
-    } catch (error) {
-      console.error('Admin Check Error:', error.message);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  };
+// exports.isAdmin = async (req, res, next) => {
+//     try {
+//       const user = await authModel.findById(req.user._id);
+//       if (!user || user.role !== 'admin') {
+//         return res.status(403).json({ success: false, message: "Access Denied: Admins Only" });
+//       }
+//       next();
+//     } catch (error) {
+//       console.error('Admin Check Error:', error.message);
+//       return res.status(500).json({ success: false, message: 'Internal Server Error' });
+//     }
+//   };
+
+
+
+
+
+// exports.isAdmin = async (req, res, next) => {
+//   try {
+//     const user = await authModel.findById(req.user._id);
+//     if (!user || user.role !== 'admin') {
+//       return res.status(403).json({ success: false, message: "Access Denied: Admins Only" });
+//     }
+//     next();
+//   } catch (error) {
+//     console.error('Admin Check Error:', error.message);
+//     return res.status(500).json({ success: false, message: 'Internal Server Error' });
+//   }
+// };
+
   
+
+
+
+
+exports.isAdmin = async (req, res, next) => {
+  try {
+    const user = await authModel.findById(req.user._id);
+    console.log('Middleware User:', user);
+
+    if (!user || user.role !== 'admin') {
+      console.log('Not an admin user.');
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Middleware Error:', error);
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+};

@@ -115,60 +115,65 @@
 
 
 
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// import Login from './pages/Login';
 import ClientLogin from './pages/ClientLogin';
 import { Toaster } from 'react-hot-toast';
 import ClientPortal from './pages/client-portal/ClientPortal';
 import ProtectedRoute from './components/protectedRoutes/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
-
-// import ClientPortal from './pages/client-portal';
+import DashboardHome from './pages/dashboard/DashboardHome';
+import ClientsPage from './pages/clients';
+import VisaApplicantsPage from './pages/applications';
+import JapanVisitPage from './pages/japan-visit';
+import TranslationsPage from './pages/translations';
+import EpassportPage from './pages/epassport';
+import GraphicDesignPage from './pages/graphic-design';
+import AppointmentPage from './pages/appointment';
+import ReportsPage from './pages/reports';
+import SettingsPage from './pages/settings';
+import OtherServicesPage from './pages/other-services';
+import AccountsPage from './pages/accounts';
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path='/client-login' element={<ClientLogin />} />
-        {/* <Route path='/login' element={<Login />} /> */} 
-        {/* <Route path='/client-portal' element={<ClientPortal/>}/> */}
-        {/* Optionally, add a fallback route */}        
-        <Route path="/" element={<Navigate to="/client-login" />} />  {/* Redirect to login */}
-        <Route path="*" element={<div>404 Not Found</div>} /> {/* Fallback for unknown routes */}
+        <Route path="/" element={<Navigate to="/client-login" />} />
+        <Route path="*" element={<div>404 Not Found</div>} />
 
-        {/* protected Routes */}
-        <Route path='' element={<ProtectedRoute/>}>
-        <Route path='/client-portal' element={<ClientPortal/>}/>
+        {/* Protected Routes */}
+        <Route path='' element={<ProtectedRoute />}>
+          <Route path='/client-portal' element={<ClientPortal />} />
         </Route>
 
-        {/* admin proteted routes */}
-        <Route path='' element={<AdminProtectedRoute/>} >
-          <Route path='/dashboard' element={<Dashboard/>}/>
-        </Route>
-
-
+        {/* Admin Protected Routes */}
+        {/* <Route path='/dashboard' element={<AdminProtectedRoute />}> */}
+        <Route path='/dashboard' element={<Dashboard/>}>
+        <Route index element={<DashboardHome />} />
+        <Route path="clients/*" element={<ClientsPage />} />
+        <Route path="applications/*" element={<VisaApplicantsPage />} />
+        <Route path="japan-visit/*" element={<JapanVisitPage />} />
+        <Route path="translations/*" element={<TranslationsPage />} />
+        <Route path="epassport/*" element={<EpassportPage />} />
+        <Route path="graphic-design/*" element={<GraphicDesignPage />} />
+        <Route path="appointment/*" element={<AppointmentPage />} />
+        <Route path="reports/*" element={<ReportsPage />} />
+        <Route path="settings/*" element={<SettingsPage />} />
+        <Route path="other-services/*" element={<OtherServicesPage />} />
+        <Route path="accounts/*" element={<AccountsPage/>} />
+      </Route>
+          
+        {/* </Route> */}
 
 
       </Routes>
-      <Toaster/>
+      <Toaster />
     </Router>
   );
 };
 
 export default App;
-
-
-
-
-
-  {/* Protected Routes */}
-//   <Route element={<ProtectedRoute />}>
-//   <Route path="/client-dashboard" element={<ClientDashboard />} />
-//   <Route path="/edit-info" element={<EditInfo />} />
-//   <Route path="/upload-documents" element={<UploadDocuments />} />
-// </Route>
-
-
-
 

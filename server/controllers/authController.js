@@ -140,8 +140,6 @@
 
 // ***************************************NEW CODE **************************************
 
-
-
 //register controller
 const authModel = require("../models/newModel/authModel");
 const bcrypt = require('bcryptjs');
@@ -249,10 +247,11 @@ exports.login = async (req, res) => {
 
 // Protected route controller
 exports.protectedRoute = async (req, res) => {
-  res.status(200).send({ ok: true });
+  res.status(200).json({ ok: true });
 }
 
 // Admin route controller
 exports.admin = (req, res) => {
-  res.status(200).send({ ok: true });
+  res.status(200).json({ ok: true });
 }
+

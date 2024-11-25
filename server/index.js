@@ -3,12 +3,16 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { sequelize } = require('./models');
 // const authRoutes = require('./routes/authRoute');
-const authRoute = require ('./routes/authRoute');
 const clientRoutes = require('./routes/clients');
 const applicationRoutes = require('./routes/applications');
 const appointmentRoutes = require('./routes/appointments');
 const documentRoutes = require('./routes/documents');
 const dbConnection = require('./config/dbConn');
+
+//new route imported by sunil
+const authRoute = require ('./routes/authRoute');
+const clientRoute = require ('./routes/newRoutes/clientRoute');
+
 
 dotenv.config();
 
@@ -32,7 +36,8 @@ app.use('/api/documents', documentRoutes);
 
 
 // ********NEW ROUTE********
-app.use('/api/v1/auth', authRoute)
+app.use('/api/v1/auth', authRoute);
+app.use('/api/v1/client', clientRoute);
 
 
 //connecting with database

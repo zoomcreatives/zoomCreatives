@@ -3,41 +3,44 @@ import axios from 'axios';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthGlobally } from '../../context/AuthContext';
 
-
-
 const AdminProtectedRoute = () => {
     const [ok, setOk] = useState(false);
     const [auth] = useAuthGlobally();
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log('Auth token:', auth?.token); // Debug statement
-
         const authCheck = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/auth/admin`);
-                console.log('Auth check response:', response.data); 
-
-                if (response.data.ok) {
-                    setOk(true);
-                } else {
-                    setOk(false);
-                }
-            } catch (error) {
-                console.error('Error checking authentication:', error);
+                const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/auth/admin`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${auth?.token}`,
+                        },
+                    }
+                );
+                console.log('Admin check response:', response.data);
+                setOk(response.data.ok);
+            } catch (error:any) {
+                console.error('Error checking authentication:', error.response?.data || error.message);
                 setOk(false);
             }
         };
+        
 
         if (auth?.token) {
             authCheck();
+        } else {
+            setOk(false);
         }
     }, [auth?.token]);
 
-    console.log('OK state:', ok); // Debug statement
+    useEffect(() => {
+        if (!ok) {
+            navigate('/');
+        }
+    }, [ok, navigate]);
 
-    return ok ? <Outlet /> : navigate('/');
-    // return ok ? <Outlet /> : <PopModal open={!ok} onClose={() => navigate('/')} />;
+    return ok ? <Outlet /> : null;
 };
 
 export default AdminProtectedRoute;

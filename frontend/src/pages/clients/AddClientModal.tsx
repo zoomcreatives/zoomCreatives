@@ -10,6 +10,8 @@ import { generateStrongPassword } from '../../utils/passwordGenerator';
 import { countries } from '../../utils/countries';
 import { createClientSchema } from '../../utils/clientValidation';
 import type { ClientCategory } from '../../types';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const categories: ClientCategory[] = [
   'Visit Visa Applicant',
@@ -139,22 +141,34 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
     });
   };
 
-  const onSubmit = (data: any) => {
-    addClient({
-      ...data,
-      dateJoined: new Date().toISOString(),
-      timeline: [],
-    });
+  const onSubmit = async (data: any) => {
+    // Make API call to create a new client
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/client/createClient`, {
+        ...data,
+        dateJoined: new Date().toISOString(),
+        timeline: [],
+      });
+      console.log('Client created successfully:', response.data);
 
-    if (!optionalCategories.includes(data.category)) {
-      alert(
-        `Client account created!\n\nUsername: ${data.email}\nPassword: ${data.password}\n\nPlease save these credentials and share them with the client securely.`
-      );
+      // Optionally, alert the admin about the client creation
+      if (!optionalCategories.includes(data.category)) {
+        toast.success(
+          `Client account created!\n\nUsername: ${data.email}\nPassword: ${data.password}\n\nPlease save these credentials and share them with the client securely.`
+        );
+      }
+
+      // Reset form and close the modal
+      reset();
+      setProfilePhotoPreview(null);
+      onClose();
+    } catch (error:any) {
+      // console.error('Error creating client:', error);
+      if(error.response){
+        toast.error('Failed to create client. Please y agtrain.', error)
+
+      }
     }
-    
-    reset();
-    setProfilePhotoPreview(null);
-    onClose();
   };
 
   if (!isOpen) return null;

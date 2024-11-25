@@ -46,7 +46,7 @@ export default function ClientPortal() {
   const handleLogout = () => {
     // If logout is required (can remove this functionality if not needed)
     localStorage.removeItem('token');
-    window.location.href = '/'; // Redirect to home page or login page
+    window.location.href = '/client-login'; // Redirect to home page or login page
   };
 
   if (isLoading) {

@@ -10,17 +10,19 @@ import {
   Bell 
 } from 'lucide-react';
 import { useStore } from '../../store';
-import { useAdminStore } from '../../store/adminStore';
+// import { useAdminStore } from '../../store/adminStore';
 import StatsCard from '../reports/components/StatsCard';
 import OngoingTasks from '../reports/components/OngoingTasks';
 import { useServiceRequestStore } from '../../store/serviceRequestStore';
 import ServiceRequestsList from './components/ServiceRequestsList';
 import Button from '../../components/Button';
+import { useAuthGlobally } from '../../context/AuthContext';
 
 export default function DashboardHome() {
   const navigate = useNavigate();
-  const { currentAdmin } = useAdminStore();
-  const isSuper = currentAdmin?.role === 'super_admin';
+  // const { currentAdmin } = useAdminStore();
+  // const isSuper = currentAdmin?.role === 'super_admin';
+  const [auth, setAuth] = useAuthGlobally();
 
   const { 
     clients, 
@@ -65,7 +67,7 @@ export default function DashboardHome() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Welcome back, {currentAdmin?.name}!
+              Welcome back, {auth.user?.fullName}!
             </h1>
             <p className="mt-1 text-gray-500">
               Here's what's happening today

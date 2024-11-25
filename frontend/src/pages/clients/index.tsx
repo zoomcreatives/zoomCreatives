@@ -249,6 +249,7 @@
 
 
 
+// *************NEW CODE***********
 
 import { useState, useMemo, useEffect } from 'react';
 import { Users, Plus, Pencil, Trash2, Mail, Phone, Upload } from 'lucide-react';
@@ -337,8 +338,6 @@ export default function ClientsPage() {
         });
     }
   };
-
-
 
   const formatPhoneForViber = (phone: string) => {
     return phone.replace(/\D/g, '');

@@ -136,8 +136,6 @@
 
 
 
-
-
 // ***************************************NEW CODE **************************************
 
 //register controller
@@ -189,10 +187,6 @@ exports.register = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
-
-
-
-
 
 
 
@@ -254,4 +248,3 @@ exports.protectedRoute = async (req, res) => {
 exports.admin = (req, res) => {
   res.status(200).json({ ok: true });
 }
-

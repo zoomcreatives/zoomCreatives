@@ -9,4 +9,6 @@ router.get('/getVisaApplicationById/:id', controller.getApplicationById);
 router.put('/updateVisaApplication/:id', controller.updateApplication);
 router.delete('/deleteVisaApplication/:id', controller.deleteApplication);
 
+
+
 module.exports = router;

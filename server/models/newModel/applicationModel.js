@@ -8,9 +8,10 @@ const familyMemberSchema = new mongoose.Schema({
 
 const applicationSchema = new mongoose.Schema(
   {
-    clientId: {type: mongoose.Schema.Types.ObjectId,
-        ref: 'ClientModel',
-        required: true
+    clientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ClientModel',
+      required: true
     },
     clientName: {
         type: String,

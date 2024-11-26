@@ -151,7 +151,7 @@ const App = () => {
 
         {/* Admin Protected Routes */}
         {/* <Route path='/dashboard' element={<AdminProtectedRoute />}> */}
-        <Route path='/dashboard' element={<Dashboard/>}>
+        <Route path='/dashboard/*' element={<Dashboard/>}>
         <Route index element={<DashboardHome />} />
         <Route path="clients/*" element={<ClientsPage />} />
         <Route path="applications/*" element={<VisaApplicantsPage />} />

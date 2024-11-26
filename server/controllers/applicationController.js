@@ -175,30 +175,45 @@ exports.getApplicationById = async (req, res) => {
 
 // Update an application by ID
 exports.updateApplication = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
-
-    // Calculate total payment
-    const total = (updateData.payment.visaApplicationFee + updateData.payment.translationFee) -
-                  (updateData.payment.paidAmount + updateData.payment.discount);
-
-    // Set total and payment status
-    updateData.payment.total = total;
-    updateData.paymentStatus = total <= 0 ? 'Paid' : 'Due';
-
-    // Find and update the application
-    const application = await applicationModel.findByIdAndUpdate(id, updateData, { new: true });
-    if (!application) {
-      return res.status(404).json({ message: 'Application not found' });
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+  
+      // Log request body for debugging
+      console.log('Request body:', updateData);
+  
+      // Check if the payment data is provided
+      if (!updateData.payment) {
+        return res.status(400).json({ message: 'Payment data is required' });
+      }
+  
+      // Set default values for missing payment fields
+      const visaApplicationFee = updateData.payment.visaApplicationFee || 0;
+      const translationFee = updateData.payment.translationFee || 0;
+      const paidAmount = updateData.payment.paidAmount || 0;
+      const discount = updateData.payment.discount || 0;
+  
+      // Calculate total payment
+      const total = (visaApplicationFee + translationFee) - (paidAmount + discount);
+  
+      // Set total and payment status
+      updateData.payment.total = total;
+      updateData.paymentStatus = total <= 0 ? 'Paid' : 'Due';
+  
+      // Find and update the application
+      const application = await applicationModel.findByIdAndUpdate(id, updateData, { new: true });
+      if (!application) {
+        return res.status(404).json({ message: 'Application not found' });
+      }
+  
+      res.status(200).json({ message: 'Application updated successfully', data: application });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Something went wrong', error: error.message });
     }
+  };
+  
 
-    res.status(200).json({ message: 'Application updated successfully', data: application });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Something went wrong', error: error.message });
-  }
-};
 
 // Delete an application by ID
 exports.deleteApplication = async (req, res) => {

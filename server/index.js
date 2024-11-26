@@ -13,6 +13,7 @@ const dbConnection = require('./config/dbConn');
 const authRoute = require ('./routes/authRoute');
 const clientRoute = require ('./routes/newRoutes/clientRoute');
 const visaApplicationRoute = require ('./routes/newRoutes/applicationRoute');
+const japanVisitRoute = require ('./routes/newRoutes/japanVisitRoute');
 
 
 dotenv.config();
@@ -39,7 +40,8 @@ app.use('/api/documents', documentRoutes);
 // ********NEW ROUTE********
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/client', clientRoute);
-app.use('/api/v1/visaApplication', visaApplicationRoute)
+app.use('/api/v1/visaApplication', visaApplicationRoute);
+app.use('/api/v1/japanVisit', japanVisitRoute);
 
 
 //connecting with database

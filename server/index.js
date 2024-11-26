@@ -12,6 +12,7 @@ const dbConnection = require('./config/dbConn');
 //new route imported by sunil
 const authRoute = require ('./routes/authRoute');
 const clientRoute = require ('./routes/newRoutes/clientRoute');
+const visaApplicationRoute = require ('./routes/newRoutes/applicationRoute');
 
 
 dotenv.config();
@@ -38,6 +39,7 @@ app.use('/api/documents', documentRoutes);
 // ********NEW ROUTE********
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/client', clientRoute);
+app.use('/api/v1/visaApplication', visaApplicationRoute)
 
 
 //connecting with database

@@ -269,6 +269,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import PaymentSection from './components/PaymentSection';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const applicationSchema = z.object({
   // Client Information
@@ -302,9 +303,7 @@ interface AddApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 export default function AddApplicationModal({ isOpen, onClose }: AddApplicationModalProps) {
-  // const { clients, addJapanVisitApplication } = useStore();
   const { admins } = useAdminStore();
   const [clients, setClients] = useState<any[]>([]);
 
@@ -335,9 +334,6 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
   const clientId = watch('clientId');
   const selectedClient = clients.find(c => c._id === clientId);
 
-  // Filter out super_admin from the handlers list
-  // const subAdmins = admins.filter(admin => admin.role !== 'super_admin');
-
   useEffect(() => {
     if (isOpen) {
       axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/client/getClient`)
@@ -356,18 +352,38 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
     }
   }, [isOpen]);
 
+  const handleApplicationCreation = async () => {
+    const formData = watch();
+    console.log('Form Data:', formData); // Debugging the form data before sending to the server
 
+    try {
+      const client = clients.find(c => c._id === formData.clientId);
+      if (client) {
+        const payload = {
+          ...formData,
+          clientName: client.name,
+          clientPhone: client.phone,
+          submissionDate: new Date().toISOString(),
+        };
 
-  const onSubmit = (data: ApplicationFormData) => {
-    const client = clients.find(c => c.id === data.clientId);
-    if (client) {
-      addJapanVisitApplication({
-        ...data,
-        clientName: client.name,
-        submissionDate: new Date().toISOString(),
-      });
-      reset();
-      onClose();
+        console.log('Payload to be sent to the API:', payload); // Debugging the payload
+
+        // const response = await axios.post('http://localhost:3000/api/v1/japanVisit/createJapanVisitApplication', payload);
+        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/japanVisit/createJapanVisitApplication`, payload);
+        
+        if (response.status === 201) {
+          console.log('Application created successfully:', response.data);
+          reset(); // Reset form after successful submission
+          onClose(); // Close the modal
+          toast.success('Application created successfully!');
+        } else {
+          console.error('Failed to create application:', response.data);
+          toast.error('Failed to create application.');
+        }
+      }
+    } catch (error) {
+      console.error('Error creating application:', error);
+      toast.error('Error creating application.');
     }
   };
 
@@ -383,7 +399,7 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form className="space-y-8">
           {/* Client Information Section */}
           <div className="space-y-6">
             <h3 className="text-lg font-medium border-b pb-2">Client Information</h3>
@@ -391,28 +407,29 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
               <div>
                 <label className="block text-sm font-medium text-gray-700">Client</label>
                 <SearchableSelect
-                  options={clients.map(client => ({
-                    value: client._id,
-                    label: client.name
-                  }))}
-                  value={watch('clientId')}
-                  onChange={(value) => {
-                    setValue('clientId', value);
-                    const client = clients.find(c => c.id === value);
-                    if (client) {
-                      setValue('mobileNo', client.phone);
-                    }
-                  }}
-                  placeholder="Select client"
-                  className="mt-1"
-                  error={errors.clientId?.message}
-                />
+  options={clients.map(client => ({
+    value: client._id,
+    label: client.name
+  }))}
+  value={watch('clientId')}
+  onChange={(value) => {
+    setValue('clientId', value);
+    const client = clients.find(c => c._id === value);
+    if (client) {
+      setValue('mobileNo', client.phone);
+    }
+  }}
+  placeholder="Select client"
+  className="mt-1"
+  error={errors.clientId?.message}
+/>
+
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Mobile No</label>
                 <Input 
-                  value={selectedClient?.phone || ''}
+                  value={selectedClient?.phone || ''} 
                   className="mt-1 bg-gray-50" 
                   disabled 
                 />
@@ -437,21 +454,6 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
                   dateFormat="yyyy-MM-dd"
                 />
               </div>
-
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700">Handled By</label>
-                <select
-                  {...register('handledBy')}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-yellow focus:ring-brand-yellow"
-                >
-                  <option value="">Select handler</option>
-                  {subAdmins.map((admin) => (
-                    <option key={admin.id} value={admin.name}>
-                      {admin.name}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Package</label>
@@ -517,12 +519,12 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Create Application</Button>
+            <Button type="button" onClick={handleApplicationCreation}>
+              Create Application
+            </Button>
           </div>
         </form>
       </div>
     </div>
   );
 }
-
-

@@ -252,3 +252,7 @@ export default function TranslationsPage() {
     </div>
   );
 }
+
+
+
+// ***backend completed and on fronted ui post request is added remaining is get route and udpate and delete route***

@@ -371,15 +371,15 @@ export default function EditApplicationModal({
 
 
 
-  const onSubmit = async (data: ApplicationFormData) => {
+  const onSubmit = async (data:any) => {
     console.log("Submitting data:", data);
     try {
-      const client = clients.find((c) => c.id === data.clientId);
+      // const client = clients.find((c) => c.id === data.clientId);
   
       // Prepare data to send to the API
       const updateData = {
         ...data,
-        clientName: client?.name || application.clientName, // Ensure clientName is updated if changed
+        // clientName: client?.name || application.clientName, // Ensure clientName is updated if changed
         payment: {
           ...data.payment,
         },

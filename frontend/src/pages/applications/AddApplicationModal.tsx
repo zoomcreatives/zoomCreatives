@@ -456,7 +456,7 @@ export default function AddApplicationModal({
     try {
       const client = clients.find((c) => c._id === data.clientId);
       if (!client) {
-        alert('Client not found');
+     toast.error('Client not found');
         return;
       }
 

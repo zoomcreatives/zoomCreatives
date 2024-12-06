@@ -16,21 +16,9 @@ import AdminSettings from './AdminSettings';
 import ProcessTemplatesTab from './ProcessTemplatesTab';
 import BackupRestoreSettings from './BackupRestoreSettings';
 import AuditLogSettings from './AuditLogSettings';
-import { useAdminStore } from '../../store/adminStore';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
-  const { currentAdmin } = useAdminStore();
-
-  // Ensure we're checking the role correctly
-  const isSuperAdmin = currentAdmin?.role === 'super_admin';
-
-  // Reset to profile tab if current tab is not accessible
-  useEffect(() => {
-    if ((activeTab === 'backup' || activeTab === 'audit') && !isSuperAdmin) {
-      setActiveTab('profile');
-    }
-  }, [activeTab, isSuperAdmin]);
 
   // Base tabs available to all admins
   const baseTabs = [
@@ -39,19 +27,12 @@ export default function SettingsPage() {
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'admins', label: 'Admin Management', icon: Shield },
     { id: 'templates', label: 'Process Templates', icon: FileText },
-  ];
-
-  // Super admin specific tabs
-  const superAdminTabs = [
-    ...baseTabs,
     { id: 'backup', label: 'Backup & Restore', icon: Database },
     { id: 'audit', label: 'Audit Logs', icon: Activity },
   ];
 
-  // Use appropriate tabs based on admin role
-  const tabs = isSuperAdmin ? superAdminTabs : baseTabs;
-
-  if (!currentAdmin) return null;
+  // Always show all tabs
+  const tabs = baseTabs;
 
   return (
     <div>
@@ -88,8 +69,8 @@ export default function SettingsPage() {
           {activeTab === 'security' && <SecuritySettings />}
           {activeTab === 'admins' && <AdminSettings />}
           {activeTab === 'templates' && <ProcessTemplatesTab />}
-          {activeTab === 'backup' && isSuperAdmin && <BackupRestoreSettings />}
-          {activeTab === 'audit' && isSuperAdmin && <AuditLogSettings />}
+          {activeTab === 'backup' && <BackupRestoreSettings />}
+          {activeTab === 'audit' && <AuditLogSettings />}
         </div>
       </div>
     </div>

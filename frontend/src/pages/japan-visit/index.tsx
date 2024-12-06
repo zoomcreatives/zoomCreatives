@@ -258,23 +258,21 @@ export default function JapanVisitPage() {
 
 
   // Fetch Japan visit applications data from the API using Axios
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        // const response = await axios.get('http://localhost:3000/api/v1/japanVisit/getAllJapanVisitApplication');
-        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/japanVisit/getAllJapanVisitApplication`);  
-        const applicationsData = response.data?.data; // Access the `data` key  
-        if (Array.isArray(applicationsData)) {
-          setApplications(applicationsData); // Set the array inside the `data` key
-        } else {
-          // console.error('API response did not contain an array in the "data" key:', response.data);
-          setApplications([]); // Fallback to an empty array
-        }
-      } catch (error) {
-        // console.error('Error fetching applications:', error);
-        setApplications([]); // Fallback to an empty array
+  const fetchApplications = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/japanVisit/getAllJapanVisitApplication`);  
+      const applicationsData = response.data?.data; 
+      if (Array.isArray(applicationsData)) {
+        setApplications(applicationsData); 
+      } else {
+        setApplications([]); 
       }
-    };
+    } catch (error) {
+      // console.error('Error fetching applications:', error);
+      setApplications([]); // Fallback to an empty array
+    }
+  };
+  useEffect(() => {
     fetchApplications();
   }, []);
   
@@ -283,15 +281,13 @@ export default function JapanVisitPage() {
     if (window.confirm('Are you sure you want to delete this application?')) {
       try {
         // Sending a DELETE request to the API endpoint
-        // const response = await axios.delete(`http://localhost:3000/api/v1/japanVisit/deleteJapanVisitApplication/${_id}`);
         const response = await axios.delete(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/japanVisit/deleteJapanVisitApplication/${_id}`);
   
         // Check if the deletion was successful
         if (response.data.success) {
           // Remove the application from the state
-          setApplications((prevApplications) =>
-            prevApplications.filter((app) => app.id !== _id)
-          );
+          setApplications((prevApplications) => prevApplications.filter((app) => app.id !== _id));
+          fetchApplications();
           toast.success('Application deleted successfully!');
         } else {
           toast.error('Failed to delete application.');
@@ -479,6 +475,7 @@ export default function JapanVisitPage() {
       <AddApplicationModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+        fetchApplications = {fetchApplications}
       />
 
       {selectedApplication && (
@@ -489,6 +486,7 @@ export default function JapanVisitPage() {
               setIsEditModalOpen(false);
               setSelectedApplication(null);
             }}
+            fetchApplications = {fetchApplications}
             application={selectedApplication}
           />
 

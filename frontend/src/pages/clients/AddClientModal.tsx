@@ -32,10 +32,11 @@ const optionalCategories: ClientCategory[] = [
 
 interface AddClientModalProps {
   isOpen: boolean;
+  getAllClients: ()=> void;
   onClose: () => void;
 }
 
-export default function AddClientModal({ isOpen, onClose }: AddClientModalProps) {
+export default function AddClientModal({ isOpen, onClose , getAllClients}: AddClientModalProps) {
   const { addClient } = useStore();
   const [isAddressLoading, setIsAddressLoading] = useState(false);
   const [addressError, setAddressError] = useState<string | null>(null);
@@ -149,13 +150,12 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
         dateJoined: new Date().toISOString(),
         timeline: [],
       });
-      console.log('Client created successfully:', response.data);
+      // console.log('Client created successfully:', response.data);
 
       // Optionally, alert the admin about the client creation
       if (!optionalCategories.includes(data.category)) {
-        toast.success(
-          `Client account created!\n\nUsername: ${data.email}\nPassword: ${data.password}\n\nPlease save these credentials and share them with the client securely.`
-        );
+        toast.success(`Client account created!\n\nUsername: ${data.email}\nPassword: ${data.password}\n\nPlease save these credentials and share them with the client securely.`);
+        getAllClients(); //for auto refrsh the client data
       }
 
       // Reset form and close the modal
@@ -248,11 +248,21 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Email {isOptionalCategory && <span className="text-gray-500">(Optional)</span>}
+              Email {isOptionalCategory && <span className="text-gray-500"></span>}
             </label>
             <Input {...register('email')} type="email" className="mt-1" />
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email.message as string}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Password {isOptionalCategory && <span className="text-gray-500"></span>}
+            </label>
+            <Input {...register('password')} type="password" className="mt-1" />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">{errors.password.message as string}</p>
             )}
           </div>
 
@@ -266,7 +276,7 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
             )}
           </div>
 
-          {!isOptionalCategory && (
+          {/* {!isOptionalCategory && (
             <div>
               <label className="block text-sm font-medium text-gray-700">Password</label>
               <div className="mt-1 flex gap-2">
@@ -285,7 +295,7 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
                 <p className="mt-1 text-sm text-red-600">{errors.password.message as string}</p>
               )}
             </div>
-          )}
+          )} */}
 
           <div>
             <label className="block text-sm font-medium text-gray-700">

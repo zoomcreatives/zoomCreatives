@@ -349,6 +349,7 @@ import toast from 'react-hot-toast';
 
 interface EditClientModalProps {
   isOpen: boolean;
+  getAllClients : ()=> void;
   onClose: () => void;
   client: Client;
 }
@@ -367,6 +368,7 @@ export default function EditClientModal({
   isOpen,
   onClose,
   client,
+  getAllClients,
 }: EditClientModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -450,6 +452,7 @@ export default function EditClientModal({
 
       toast.success('Client updated successfully!');
       onClose();
+      getAllClients();
     } catch (error) {
       console.error('Error updating client:', error);
       toast.error('Failed to update client. Please try again later.');

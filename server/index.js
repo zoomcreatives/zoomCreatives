@@ -14,6 +14,11 @@ const authRoute = require ('./routes/authRoute');
 const clientRoute = require ('./routes/newRoutes/clientRoute');
 const visaApplicationRoute = require ('./routes/newRoutes/applicationRoute');
 const japanVisitRoute = require ('./routes/newRoutes/japanVisitRoute');
+const documentTranslationRoute = require ('./routes/newRoutes/documentTranslationRoute');
+const ePassportRoute = require ('./routes/newRoutes/ePassportRoute');
+const otherServicesRoute = require ('./routes/newRoutes/otherServicesRoute');
+const graphicDesignRoute = require ('./routes/newRoutes/graphicDesingRoute');
+const appointmentRoute = require ('./routes/newRoutes/appointmentRoute');
 
 
 dotenv.config();
@@ -42,6 +47,14 @@ app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/client', clientRoute);
 app.use('/api/v1/visaApplication', visaApplicationRoute);
 app.use('/api/v1/japanVisit', japanVisitRoute);
+app.use('/api/v1/documentTranslation', documentTranslationRoute);
+app.use('/api/v1/ePassport', ePassportRoute);
+app.use('/api/v1/otherServices', otherServicesRoute);
+app.use('/api/v1/graphicDesign', graphicDesignRoute);
+app.use('/api/v1/appointment', appointmentRoute);
+
+
+
 
 
 //connecting with database

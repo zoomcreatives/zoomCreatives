@@ -443,15 +443,18 @@ export default function VisaApplicantsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
 
   // Fetch the applications from API
-  useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/visaApplication/getAllVisaApplication`)
+
+  const getAllApplication = ()=>{
+    axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/visaApplication/getAllVisaApplication`)
       .then((response) => {
-        setApplications(response.data.data); // Assuming the response contains a `data` field with applications
+        setApplications(response.data.data); 
       })
       .catch((error) => {
         console.error('Error fetching applications:', error);
       });
+  }
+  useEffect(() => {
+    getAllApplication();    
   }, []);
 
   // Filter applications based on search query and selected country
@@ -468,12 +471,11 @@ export default function VisaApplicantsPage() {
     if (window.confirm('Are you sure you want to delete this application?')) {
       try {
       const response =  await axios.delete(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/visaApplication/deleteVisaApplication/${_id}`);
-      if(response){
+      if(response.data.success){
         // Update state after successful deletion
-        setApplications((prevApplications) =>
-          prevApplications.filter((app) => app.id !== _id)
-        );
+        // setApplications((prevApplications) =>prevApplications.filter((app) => app.id !== _id));
         toast.success(response.data.message);
+        getAllApplication();
 
       }
 
@@ -627,6 +629,7 @@ export default function VisaApplicantsPage() {
       <AddApplicationModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+        getAllApplication = {getAllApplication}
       />
 
       {selectedApplication && (
@@ -637,6 +640,7 @@ export default function VisaApplicantsPage() {
               setIsEditModalOpen(false);
               setSelectedApplication(null);
             }}
+            getAllApplication = {getAllApplication}
             application={selectedApplication}
           />
 

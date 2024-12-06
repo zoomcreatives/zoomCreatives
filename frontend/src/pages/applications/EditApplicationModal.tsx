@@ -301,38 +301,40 @@ import TodoList from '../../components/TodoList';
 import PaymentDetails from './components/PaymentDetails';
 import type { Application } from '../../types';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
-const applicationSchema = z.object({
-  clientId: z.string().min(1, 'Client is required'),
-  type: z.enum(['Visitor Visa', 'Student Visa']),
-  country: z.string().min(1, 'Country is required'),
-  deadline: z.date(),
-  documentStatus: z.enum(['Not Yet', 'Few Received', 'Fully Received']),
-  documentsToTranslate: z.number().min(0),
-  visaStatus: z.enum(['Under Review', 'Under Process', 'Waiting for Payment', 'Completed', 'Approved', 'Rejected']),
-  translationStatus: z.enum(['Under Process', 'Completed']),
-  payment: z.object({
-    visaApplicationFee: z.number().min(0),
-    translationFee: z.number().min(0),
-    paidAmount: z.number().min(0),
-    discount: z.number().min(0),
-  }),
-  paymentStatus: z.enum(['Due', 'Paid']),
-  handledBy: z.string().min(1, 'Handler is required'),
-  notes: z.string().optional(),
-  todos: z.array(z.object({
-    id: z.string(),
-    task: z.string(),
-    completed: z.boolean(),
-    priority: z.enum(['Low', 'Medium', 'High']),
-    dueDate: z.date().optional(),
-  })),
-});
+// const applicationSchema = z.object({
+//   clientId: z.string().min(1, 'Client is required'),
+//   type: z.enum(['Visitor Visa', 'Student Visa']),
+//   country: z.string().min(1, 'Country is required'),
+//   deadline: z.date(),
+//   documentStatus: z.enum(['Not Yet', 'Few Received', 'Fully Received']),
+//   documentsToTranslate: z.number().min(0),
+//   visaStatus: z.enum(['Under Review', 'Under Process', 'Waiting for Payment', 'Completed', 'Approved', 'Rejected']),
+//   translationStatus: z.enum(['Under Process', 'Completed']),
+//   payment: z.object({
+//     visaApplicationFee: z.number().min(0),
+//     translationFee: z.number().min(0),
+//     paidAmount: z.number().min(0),
+//     discount: z.number().min(0),
+//   }),
+//   paymentStatus: z.enum(['Due', 'Paid']),
+//   handledBy: z.string().min(1, 'Handler is required'),
+//   notes: z.string().optional(),
+//   todos: z.array(z.object({
+//     id: z.string(),
+//     task: z.string(),
+//     completed: z.boolean(),
+//     priority: z.enum(['Low', 'Medium', 'High']),
+//     dueDate: z.date().optional(),
+//   })),
+// });
 
-type ApplicationFormData = z.infer<typeof applicationSchema>;
+// type ApplicationFormData = z.infer<typeof applicationSchema>;
 
 interface EditApplicationModalProps {
   isOpen: boolean;
+  getAllApplication : () => void;
   onClose: () => void;
   application: Application;
 }
@@ -341,6 +343,7 @@ export default function EditApplicationModal({
   isOpen,
   onClose,
   application,
+  getAllApplication
 }: EditApplicationModalProps) {
   const { clients, updateApplication } = useStore();
 
@@ -351,7 +354,7 @@ export default function EditApplicationModal({
     watch,
     formState: { errors },
   } = useForm<ApplicationFormData>({
-    resolver: zodResolver(applicationSchema),
+    // resolver: zodResolver(applicationSchema),
     defaultValues: {
       ...application,
       deadline: new Date(application.deadline),
@@ -386,16 +389,21 @@ export default function EditApplicationModal({
       };
   
       // Call the API to update the application
-      const response = await axios.put(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/visaApplication/updateVisaApplication/${application.id}`,
+      const response = await axios.put(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/visaApplication/updateVisaApplication/${application._id}`,
         updateData
       );
   
       if (response.data.success) {
-        console.log('Application updated:', response.data);
+        // console.log('Application updated:', response.data);
+        toast.success(response.data.message);
         updateApplication(application.id, response.data.data); // Update the local state in the store
         onClose(); // Close the modal
+        getAllApplication();
       }
-    } catch (error) {
+    } catch (error:any) {
+      if(error.response){
+        toast.error(error.response.data.message);
+      }
       console.error('Failed to update application:', error);
     }
   };

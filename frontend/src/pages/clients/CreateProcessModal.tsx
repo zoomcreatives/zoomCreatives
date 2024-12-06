@@ -51,7 +51,7 @@ export default function CreateProcessModal({
   });
 
   const selectedTemplateId = watch('templateId');
-  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+  // const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
 
   // Get service amount based on template type
   const getServiceAmount = (template: ProcessFlowTemplate) => {

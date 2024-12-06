@@ -279,6 +279,7 @@ export default function EditApplicationModal({
   onClose,
   application,
   clients,
+  fetchApplications
 }) {
   // Early return if modal is not open
   if (!isOpen) return null;
@@ -312,16 +313,16 @@ export default function EditApplicationModal({
   // API call to update the application
   const onSubmit = async (data: any) => {
     try {
-      console.log('Sending data to the backend:', { ...data });
+      // console.log('Sending data to the backend:', { ...data });
 
-      const response = await axios.put(
-        `${import.meta.env.VITE_REACT_APP_URL}/api/v1/japanVisit/updateJapanVisitApplication/${application._id}`,
+      const response = await axios.put(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/japanVisit/updateJapanVisitApplication/${application._id}`,
         { ...data }
       );
 
       if (response.data.success) {
         toast.success('Application updated successfully!');
         onClose(); // Close the modal after success
+        fetchApplications();
       } else {
         toast.error('Failed to update application.');
       }
@@ -385,3 +386,4 @@ export default function EditApplicationModal({
   );
 }
 
+//Note:---> need to work on this component make sure add typescript and fix some buges like not auto updated while modal edit 

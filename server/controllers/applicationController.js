@@ -110,11 +110,12 @@
 
 
 const applicationModel = require('../models/newModel/applicationModel');
+const applicationStepModel = require('../models/newModel/steps/applicationStepModel');
 
 // Create a new application
 exports.createApplication = async (req, res) => {
   try {
-    const { clientId, clientName, familyMembers, payment, ...rest } = req.body;
+    const { clientId, step, clientName, familyMembers, payment, ...rest } = req.body;
 
     // Calculate total payment
     const total = (payment.visaApplicationFee + payment.translationFee) -
@@ -125,6 +126,7 @@ exports.createApplication = async (req, res) => {
       ...rest,
       clientName,
       clientId,  // Mongoose will automatically handle clientId as ObjectId
+      step,
       familyMembers,
       payment: {
         ...payment,
@@ -151,7 +153,7 @@ exports.createApplication = async (req, res) => {
 // Get all applications
 exports.getApplications = async (req, res) => {
   try {
-    const applications = await applicationModel.find().populate('clientId');
+    const applications = await applicationModel.find().populate('clientId').populate('step');
     res.status(200).json({ data: applications });
   } catch (error) {
     console.error(error);
@@ -184,7 +186,7 @@ exports.updateApplication = async (req, res) => {
   
       // Check if the payment data is provided
       if (!updateData.payment) {
-        return res.status(400).json({ message: 'Payment data is required' });
+        return res.status(400).json({success: false, message: 'Payment data is required' });
       }
   
       // Set default values for missing payment fields
@@ -203,13 +205,13 @@ exports.updateApplication = async (req, res) => {
       // Find and update the application
       const application = await applicationModel.findByIdAndUpdate(id, updateData, { new: true });
       if (!application) {
-        return res.status(404).json({ message: 'Application not found' });
+        return res.status(404).json({success: false, message: 'Application not found' });
       }
   
-      res.status(200).json({ message: 'Application updated successfully', data: application });
+      res.status(200).json({success: true, message: 'Application updated successfully', data: application });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Something went wrong', error: error.message });
+      res.status(500).json({success: false, message: 'Something went wrong', error: error.message });
     }
   };
   
@@ -223,12 +225,46 @@ exports.deleteApplication = async (req, res) => {
     // Find and delete the application
     const application = await applicationModel.findByIdAndDelete(id);
     if (!application) {
-      return res.status(404).json({ message: 'Application not found' });
+      return res.status(404).json({success: false, message: 'Application not found' });
     }
 
-    res.status(200).json({ message: 'Application deleted successfully' });
+    res.status(200).json({success: true, message: 'Application deleted successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Something went wrong', error: error.message });
+    res.status(500).json({success: false, message: 'Something went wrong', error: error.message });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ************step testing*******
+
+
+exports.createStep = async (req, res) => {
+  try {
+      const { stepName } = req.body; // Expecting the 'name' field in the body
+
+      // Create and save the new step
+      const newStep = new applicationStepModel({
+        stepName,  // Simply using the name as it comes without additional validation
+      });
+
+      await newStep.save();
+
+      res.status(201).json({success: true,  message: 'Step created successfully',step: newStep});
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({success: true, message: 'Error creating step', error: error.message });
   }
 };

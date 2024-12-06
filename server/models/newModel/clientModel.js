@@ -12,6 +12,10 @@ const clientSchema = new mongoose.Schema({
     phone: {type: String,
         required: true
     },
+    password: {
+        type: String,
+        required: true,
+    },
     nationality: {
         type: String,
         // required: true,

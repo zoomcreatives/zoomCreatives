@@ -1,66 +1,48 @@
+
 const mongoose = require('mongoose');
 
-const paymentSchema = new mongoose.Schema({
-  visaApplicationFee: { type: Number, required: true },
-  translationFee: { type: Number, required: true },
-  paidAmount: { type: Number, required: true },
-  discount: { type: Number, required: true },
-  total: { type: Number, required: true },
-  paymentStatus: { type: String, required: true, enum: ['Paid', 'Due'] },
-});
 
-const japanVisitSchema = new mongoose.Schema(
-  {
-    clientId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'ClientModel',
-        required: true
-    },
-    clientName: {
-        type: String,
-        // required: true
-    },
-    type: {
-        type: String,
-        enum: ['Visitor Visa', 'Other'],
-         required: true
-        },
-    country: {
-        type: String,
-         required: true
-        },
-    documentStatus: {
-        type: String,
-        default: 'Not Yet'
-    },
-    documentsToTranslate: {
-        type: Number,
-        default: 0
-    },
-    translationStatus: {
-        type: String,
-        default: 'Under Process'
-    },
-    visaStatus: {
-        type: String,
-        default: 'Under Review'
-    },
-    deadline: {
-        type: Date
-    },
-    payment: paymentSchema,
-    paymentStatus: {
-        type: String, enum: ['Paid', 'Due'], required: true },
-    submissionDate: {
-        type: Date, default: Date.now },
-    createdAt: {
-        type: Date, default: Date.now },
-    updatedAt: {
-        type: Date, default: Date.now },
+// Define Mongoose schema and model for the application data
+const japanVistiApplicationSchema = new mongoose.Schema({
+  clientId: { type: mongoose.Schema.Types.ObjectId, required: true,  ref: 'ClientModel' },
+  mobileNo: { type: String, required: true },
+  date: { type: Date, required: true },
+  deadline: { type: Date, required: true },
+  handledBy: {
+    type: String,
+    //  required: true
+     },
+  package: { type: String, enum: ['Standard Package', 'Premium Package'], required: true },
+  noOfApplicants: { type: Number, required: true, min: 1 },
+  reasonForVisit: { 
+    type: String, 
+    enum: ['General Visit', 'Baby Care', 'Program Attendance', 'Other'], 
+    required: true 
   },
-  { timestamps: true }
-);
+  otherReason: { type: String },
 
-// module.exports = mongoose.model('Application', applicationSchema);
-const japanVisitModel = mongoose.model('japanVisitModel', japanVisitSchema);
-module.exports = japanVisitModel;
+  // Financial Details
+  amount: { type: Number, required: true, min: 0 },
+  paidAmount: { type: Number, required: true, min: 0 },
+  discount: { type: Number, required: true, min: 0 },
+  deliveryCharge: { type: Number, required: true, min: 0 },
+  dueAmount: { type: Number, required: true },
+  paymentStatus: { type: String, enum: ['Due', 'Paid'], required: true },
+  paymentMethod: {
+    type: String,
+    enum: ['Bank Furicomy', 'Counter Cash', 'Credit Card', 'Paypay', 'Line Pay'],
+  },
+  modeOfDelivery: {
+    type: String,
+    enum: ['Office Pickup', 'PDF', 'Normal Delivery', 'Blue Letterpack', 'Red Letterpack'],
+    required: true,
+  },
+
+  // Additional Information
+  notes: { type: String },
+}, { timestamps: true });
+
+
+
+const japanVisitAppplicaitonModel = mongoose.model('japanVisitApplicationModel', japanVistiApplicationSchema);
+module.exports = japanVisitAppplicaitonModel;

@@ -398,12 +398,14 @@ type ApplicationFormData = z.infer<typeof applicationSchema>;
 
 interface AddApplicationModalProps {
   isOpen: boolean;
+  getAllApplication : () => void;
   onClose: () => void;
 }
 
 export default function AddApplicationModal({
   isOpen,
   onClose,
+  getAllApplication
 }: AddApplicationModalProps) {
   const [clients, setClients] = useState<any[]>([]);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
@@ -480,6 +482,7 @@ export default function AddApplicationModal({
         reset();
         setFamilyMembers([]);
         onClose();
+        getAllApplication();
       }
 
     } catch (error:any) {

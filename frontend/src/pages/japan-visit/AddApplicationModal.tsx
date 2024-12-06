@@ -301,9 +301,10 @@ type ApplicationFormData = z.infer<typeof applicationSchema>;
 
 interface AddApplicationModalProps {
   isOpen: boolean;
+  fetchApplications : () => void;
   onClose: () => void;
 }
-export default function AddApplicationModal({ isOpen, onClose }: AddApplicationModalProps) {
+export default function AddApplicationModal({ isOpen, onClose, fetchApplications }: AddApplicationModalProps) {
   const { admins } = useAdminStore();
   const [clients, setClients] = useState<any[]>([]);
 
@@ -370,12 +371,13 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
 
         // const response = await axios.post('http://localhost:3000/api/v1/japanVisit/createJapanVisitApplication', payload);
         const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/japanVisit/createJapanVisitApplication`, payload);
-        
-        if (response.status === 201) {
-          console.log('Application created successfully:', response.data);
+
+        if (response.data.success) {
+          // console.log('Application created successfully:', response.data);
           reset(); // Reset form after successful submission
           onClose(); // Close the modal
           toast.success('Application created successfully!');
+          fetchApplications();
         } else {
           console.error('Failed to create application:', response.data);
           toast.error('Failed to create application.');
@@ -407,31 +409,31 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
               <div>
                 <label className="block text-sm font-medium text-gray-700">Client</label>
                 <SearchableSelect
-  options={clients.map(client => ({
-    value: client._id,
-    label: client.name
-  }))}
-  value={watch('clientId')}
-  onChange={(value) => {
-    setValue('clientId', value);
-    const client = clients.find(c => c._id === value);
-    if (client) {
-      setValue('mobileNo', client.phone);
-    }
-  }}
-  placeholder="Select client"
-  className="mt-1"
-  error={errors.clientId?.message}
-/>
+                  options={clients.map(client => ({
+                    value: client._id,
+                    label: client.name
+                  }))}
+                  value={watch('clientId')}
+                  onChange={(value) => {
+                    setValue('clientId', value);
+                    const client = clients.find(c => c._id === value);
+                    if (client) {
+                      setValue('mobileNo', client.phone);
+                    }
+                  }}
+                  placeholder="Select client"
+                  className="mt-1"
+                  error={errors.clientId?.message}
+                />
 
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Mobile No</label>
-                <Input 
-                  value={selectedClient?.phone || ''} 
-                  className="mt-1 bg-gray-50" 
-                  disabled 
+                <Input
+                  value={selectedClient?.phone || ''}
+                  className="mt-1 bg-gray-50"
+                  disabled
                 />
               </div>
 
@@ -494,11 +496,11 @@ export default function AddApplicationModal({ isOpen, onClose }: AddApplicationM
           {/* Financial Details Section */}
           <div className="space-y-6">
             <h3 className="text-lg font-medium border-b pb-2">Financial Details</h3>
-            <PaymentSection 
-              register={register} 
-              watch={watch} 
+            <PaymentSection
+              register={register}
+              watch={watch}
               setValue={setValue}
-              errors={errors} 
+              errors={errors}
             />
           </div>
 

@@ -295,21 +295,23 @@ export default function ClientsPage() {
   ];
 
   // Fetch clients from backend API
-  useEffect(() => {
-    const fetchClients = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/client/getClient`);
-        console.log(response)
-        setClients(response.data);  // Assuming the response data is an array of clients
-      } catch (error) {
-        setError('Failed to fetch clients.');
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchClients();
+  const getAllClients = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/client/getClient`);
+      console.log(response)
+      setClients(response.data); 
+    } catch (error) {
+      setError('Failed to fetch clients.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    getAllClients();
   }, []);
 
   // Filter clients based on all criteria
@@ -328,9 +330,11 @@ export default function ClientsPage() {
       // Send DELETE request to the backend with the correct client ID
       axios.delete(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/client/deleteClient/${_id}`)
         .then((response) => {
-          console.log('Client deleted:', response.data);
+          toast.success(response.data.message);
+          // console.log('Client deleted:', response.data);
+          getAllClients();
           // Remove the client from the local state after deletion
-          setClients((prevClients) => prevClients.filter(client => client._id !== _id));  // Correct usage of _id
+          // setClients((prevClients) => prevClients.filter(client => client._id !== _id));  // Correct usage of _id
         })
         .catch((error) => {
           console.error('Delete failed:', error);
@@ -523,6 +527,7 @@ export default function ClientsPage() {
       <AddClientModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+        getAllClients={getAllClients}
       />
 
       {selectedClient && (
@@ -532,6 +537,7 @@ export default function ClientsPage() {
             setIsEditModalOpen(false);
             setSelectedClient(null);
           }}
+          getAllClients={getAllClients}
           client={selectedClient}
         />
       )}

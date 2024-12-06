@@ -1,4 +1,4 @@
-const Client = require('../models/Client');
+
 const ClientModel = require('../models/newModel/clientModel');
 
 // Get all clients
@@ -25,28 +25,34 @@ exports.getClientById = async (req, res) => {
 };
 
 // Add a new client
-// Add a new client
+const bcrypt = require('bcryptjs'); // Import bcryptjs for password hashing
+
 exports.addClient = async (req, res) => {
-    const { name, email, phone, nationality, category, status } = req.body;
-  
-    const newClient = new ClientModel({
-      name,
-      email,
-      phone,
-      nationality,
-      category,
-      status,
-      // profilePhoto,
-    });
-  
-    try {
-      // Use save() on the instance of newClient
-      const savedClient = await newClient.save(); // FIX: Use newClient.save() here
-      res.status(201).json(savedClient);
-    } catch (err) {
-      res.status(400).json({ message: err.message });
-    }
-  };
+  const { name, email, password, phone, nationality, category, status } = req.body;
+
+  // Hash the password before saving
+  const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds for bcrypt
+
+  const newClient = new ClientModel({
+    name,
+    email,
+    password: hashedPassword,  // Store the hashed password
+    phone,
+    nationality,
+    category,
+    status,
+    // profilePhoto,
+  });
+
+  try {
+    // Save the new client with hashed password
+    const savedClient = await newClient.save();
+    res.status(201).json(savedClient);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
   
 
 // Update an existing client

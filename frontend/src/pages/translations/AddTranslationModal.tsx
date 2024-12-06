@@ -327,10 +327,11 @@ type TranslationFormData = z.infer<typeof translationSchema>;
 
 interface AddTranslationModalProps {
   isOpen: boolean;
+  getAllTranslations: ()=> void;
   onClose: () => void;
 }
 
-export default function AddTranslationModal({ isOpen, onClose }: AddTranslationModalProps) {
+export default function AddTranslationModal({ isOpen, onClose,getAllTranslations }: AddTranslationModalProps) {
   const [clients, setClients] = useState<any[]>([]);
   const [showPaymentMethod, setShowPaymentMethod] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -395,6 +396,7 @@ export default function AddTranslationModal({ isOpen, onClose }: AddTranslationM
         toast.success(response.data.message);
         reset();
         onClose();
+        getAllTranslations();
         }
         
       } catch (error) {

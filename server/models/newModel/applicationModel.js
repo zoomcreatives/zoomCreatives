@@ -13,6 +13,18 @@ const applicationSchema = new mongoose.Schema(
       ref: 'ClientModel',
       required: true
     },
+
+
+
+    step:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ApplicationStepModel',
+      // required: true,
+    },
+
+
+
+
     clientName: {
         type: String,
         required: true

@@ -15,8 +15,10 @@ router.delete('/deleteAppointment/:id', controller.deleteAppointment);
 // **********GET ALL MODEL DATA AT ONCE FOR (ACCOUNT AND TAKS (FRONTEND))**********
 router.get('/fetchAllModelData', controller.fetchAllModelData);
 router.get('/getAllModelDataByID/:id', controller.getAllModelDataById);
-router.put('/updateStatus/:id', controller.updateStepStatus);
 router.post('/createSteps', controller.createApplicationStep);
+router.get('/getApplicationStep', controller.getApplicationSteps);
+// router.put('/updateStatus/:id', controller.updateStepStatus);
+router.put('/updateStatus', controller.updateStepStatus);
 
 
 module.exports = router;

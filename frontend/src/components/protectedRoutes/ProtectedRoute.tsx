@@ -1,36 +1,37 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Outlet, useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import {Outlet, useNavigate } from 'react-router-dom';
 import { useAuthGlobally } from '../../context/AuthContext';
+import Spinner from './Spinner';
 
 
-const ProtectedRoute = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [auth] = useAuthGlobally();
+const ProtectRoute = () => {
+    const [ok, setOk] = useState(false);
+    const [auth, setAuth] = useAuthGlobally();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkAuth = async () => {
+        const authCheck = async () => {
             try {
                 const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/auth/protectedRoute`);
-                console.log('protected route is ', response)
-                setIsAuthenticated(response.data.ok);
+                if (response.data.ok) {
+                    setOk(true);
+                } else {
+                    setOk(false);
+                }
             } catch (error) {
                 console.error('Error checking authentication:', error);
-                toast.error('Error checking authentication')
-                setIsAuthenticated(false);
+                setOk(false);
             }
         };
 
         if (auth?.token) {
-            checkAuth();
-        } else {
-            navigate('/client-login');
+            authCheck();
         }
-    }, [auth?.token, navigate]);
+    }, [auth?.token]);
 
-    return isAuthenticated ? <Outlet /> : null;
+    return ok ? <Outlet/> : <Spinner /> 
+    // return ok ? <Outlet/> : toast.error('Please Login first')
 };
 
-export default ProtectedRoute;
+export default ProtectRoute;

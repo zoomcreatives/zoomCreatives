@@ -1,46 +1,3 @@
-// const JWT = require ('jsonwebtoken');
-// const authModel = require('../../models/newModel/authModel');
-
-
-// exports.requireLogin = async (req, res, next)=>{
-
-//     const token = req.header('Authorization');
-
-//     if(!token){
-//         return res.status(401).json({success: false, message: 'Unauthorized : Login First'})
-//     }
-
-//     try {
-//         const decoded = JWT.verify(token.replace("Bearer", "") ,process.env.SECRET_KEY);
-//         req.user = decoded;
-//         next();
-       
-//     } catch (error) {
-//         return res.status(401).json({success: false, message: 'Unauthorized : Invalid Token'})
-        
-//     }
-// }
-
-
-// // *********************ISADMIN*******************************
-// exports.isAdmin = async (req, res, next) => {
-//     try {
-//         const user = await authModel.findById(req.user._id);
-//         if (!user || user.role !== 'admin') {
-//             return res.status(401).json({ success: false, message: 'You don\'t have permission to access this resource.' });
-//         }
-//         next();
-//     } catch (error) {
-//         return res.status(401).json({ success: false, message: 'Unauthorized Access. Please log in and try again!' });
-//     }
-// };
-
-
-
-
-
-
-
 
 const JWT = require('jsonwebtoken');
 const authModel = require('../../models/newModel/authModel');
@@ -56,8 +13,8 @@ exports.requireLogin = async (req, res, next) => {
     // Remove "Bearer" and trim whitespace
     const decoded = JWT.verify(token.replace("Bearer ", "").trim(), process.env.SECRET_KEY);
 
-    req.user = decoded; // Attach user payload to req
-    next(); // Proceed to next middleware
+    req.user = decoded; 
+    next(); 
   } catch (error) {
     console.error('Token Verification Error:', error.message);
     return res.status(401).json({ success: false, message: 'Unauthorized: Invalid Token' });
@@ -66,58 +23,39 @@ exports.requireLogin = async (req, res, next) => {
 
 
 
-
-
-
-
-// exports.isAdmin = async (req, res, next) => {
-//     try {
-//       const user = await authModel.findById(req.user._id);
-//       if (!user || user.role !== 'admin') {
-//         return res.status(403).json({ success: false, message: "Access Denied: Admins Only" });
-//       }
-//       next();
-//     } catch (error) {
-//       console.error('Admin Check Error:', error.message);
-//       return res.status(500).json({ success: false, message: 'Internal Server Error' });
-//     }
-//   };
-
-
-
-
-
 // exports.isAdmin = async (req, res, next) => {
 //   try {
-//     const user = await authModel.findById(req.user._id);
-//     if (!user || user.role !== 'admin') {
-//       return res.status(403).json({ success: false, message: "Access Denied: Admins Only" });
-//     }
-//     next();
+//       const user = await authModel.findById(req.user._id); 
+//       if (!user || user.role !== 'admin') {
+//           return res.status(401).json({ success: false, message: 'Unauthorized' });
+//       }
+//       next(); 
 //   } catch (error) {
-//     console.error('Admin Check Error:', error.message);
-//     return res.status(500).json({ success: false, message: 'Internal Server Error' });
+//       console.error('Error in isAdmin middleware:', error);
+//       res.status(401).json({ success: false, message: 'Unauthorized' });
 //   }
 // };
-
-  
 
 
 
 
 exports.isAdmin = async (req, res, next) => {
   try {
-    const user = await authModel.findById(req.user._id);
-    console.log('Middleware User:', user);
-
-    if (!user || user.role !== 'admin') {
-      console.log('Not an admin user.');
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    // Ensure that `req.user` exists
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Invalid User Data' });
     }
 
-    next();
+    // Fetch the user's role
+    const user = await authModel.findById(req.user._id).select('role'); // Fetch only the role field
+    if (!user || !['admin', 'superadmin'].includes(user.role)) {
+      return res.status(403).json({ success: false, message: 'Access Denied: Insufficient Permissions' });
+    }
+
+    next(); // User is either `admin` or `superadmin`, proceed to the next step
   } catch (error) {
-    console.error('Middleware Error:', error);
-    return res.status(401).json({ success: false, message: 'Unauthorized' });
+    console.error('Error in isAdmin middleware:', error.message);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
+

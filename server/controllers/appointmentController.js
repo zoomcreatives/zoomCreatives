@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const applicationModel = require("../models/newModel/applicationModel");
 const AppointmentModel = require("../models/newModel/appointmentModel");
 const ClientModel = require("../models/newModel/clientModel");
@@ -146,12 +147,12 @@ exports.deleteAppointment = async (req, res) => {
       // Fetch data from all models in parallel
       const [application, japanVisit, documentTranslation, epassports, otherServices, graphicDesigns, appointment, ] = await Promise.all([
         applicationModel.find().populate('clientId').populate('step').lean(),
-        japanVisitAppplicaitonModel.find().populate('clientId').lean(),
-        documentTranslationModel.find().populate('clientId').lean(),
-        ePassportModel.find().populate('clientId').lean(),
-        OtherServiceModel.find().populate('clientId').lean(),
-        GraphicDesignModel.find().populate('clientId').lean(),
-        AppointmentModel.find().populate('clientId').lean(),
+        japanVisitAppplicaitonModel.find().populate('clientId').populate('step').lean(),
+        documentTranslationModel.find().populate('clientId').populate('step').lean(),
+        ePassportModel.find().populate('clientId').populate('step').lean(),
+        OtherServiceModel.find().populate('clientId').populate('step').lean(),
+        GraphicDesignModel.find().populate('clientId').populate('step').lean(),
+        AppointmentModel.find().populate('clientId').populate('step').lean(),
 
       ]);
   
@@ -166,49 +167,66 @@ exports.deleteAppointment = async (req, res) => {
     }
   };
 
+
+  //get all model data by id
+  // Define the models array
+  const models = [
+    applicationModel,
+    japanVisitAppplicaitonModel,
+    documentTranslationModel,
+    ePassportModel,
+    OtherServiceModel,
+    GraphicDesignModel,
+    AppointmentModel
+  ];
+  
   exports.getAllModelDataById = async (req, res) => {
     try {
-      const { id } = req.params;  // Assuming the client ID is passed as a route parameter
+      // Extract clientId from the route params
+      const { id } = req.params;
   
-      // First, check if the clientId exists in the Client model
-      const clientExists = await ClientModel.findById(id);
-      if (!clientExists) {
-        return res.status(404).json({ success: false, message: 'Client not found' });
+      // Ensure clientId is provided and is a valid ObjectId
+      if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid or missing client ID' });
       }
   
-      // Fetch data for the given clientId from all models in parallel
-      const [application, japanVisit, documentTranslation, epassports, otherServices, graphicDesigns, appointment] = await Promise.all([
-        applicationModel.find({ 'clientId': id }).populate('clientId').populate('step').lean(),
-        japanVisitAppplicaitonModel.find({ 'clientId': id }).populate('clientId').lean(),
-        documentTranslationModel.find({ 'clientId': id }).populate('clientId').lean(),
-        ePassportModel.find({ 'clientId': id }).populate('clientId').lean(),
-        OtherServiceModel.find({ 'clientId': id }).populate('clientId').lean(),
-        GraphicDesignModel.find({ 'clientId': id }).populate('clientId').lean(),
-        AppointmentModel.find({ 'clientId': id }).populate('clientId').lean(),
-      ]);
+      // Use a map to store results for each model
+      const allData = {};
   
-      // Combine the fetched data into a single response object
-      const allData = {
-        application,
-        japanVisit,
-        documentTranslation,
-        epassports,
-        otherServices,
-        graphicDesigns,
-        appointment,
-      };
+      // Run queries in parallel
+      const promises = models.map(model =>
+        model.find({ clientId: id }) // Querying based on clientId instead of id
+          .populate('clientId')        // Populate clientId field
+          .populate('step')            // Populate step field
+          .lean()
+          .catch(err => {
+            return { success: false, message: `Failed to fetch data for model ${model.modelName}`, error: err.message };
+          })
+      );
   
-      // Send the combined data as a JSON response
-      res.status(200).json({ success: true, message: 'Data fetched successfully', allData });
+      const results = await Promise.all(promises);
+  
+      // Store results by model name
+      results.forEach((data, idx) => {
+        allData[models[idx].modelName] = data;
+      });
+  
+      // console.log('Fetched Data:', allData); // Log the fetched data for debugging
+  
+      // If there's data to return, send the response
+      if (Object.keys(allData).length > 0) {
+        return res.status(200).json({ success: true, message: 'Data fetched successfully', allData });
+      } else {
+        return res.status(404).json({ success: false, message: 'No data found for the client ID' });
+      }
+  
     } catch (error) {
-      console.error('Error fetching data by clientId:', error);
-      res.status(500).json({ success: false, message: 'Failed to fetch data by client ID', error });
+      // Log any unexpected errors
+      console.error('Unexpected error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to fetch data by client ID', error: error.message });
     }
   };
-
-
-
-
+  
 
 
 
@@ -216,15 +234,20 @@ exports.deleteAppointment = async (req, res) => {
 // Controller to handle creating a new application step with an object structure for stepNames
 exports.createApplicationStep = async (req, res) => {
   try {
-    const { stepNames } = req.body;
+    const { clientId, stepNames } = req.body;
 
-    // Validate stepNames object
+    // Validate required fields
+    if (!clientId) {
+      return res.status(400).json({ success: false, message: 'clientId is required' });
+    }
+
     if (typeof stepNames !== 'object' || Object.keys(stepNames).length === 0) {
-      return res.status(400).json({ message: 'stepNames must be a non-empty object' });
+      return res.status(400).json({ success: false, message: 'stepNames must be a non-empty object' });
     }
 
     // Create a new ApplicationStep document
     const newStep = new applicationStepModel({
+      clientId,  // Make sure clientId is saved at the top level
       stepNames,
     });
 
@@ -233,42 +256,165 @@ exports.createApplicationStep = async (req, res) => {
 
     // Return the saved step as a response
     res.status(201).json(savedStep);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error) {
+    console.error('Error while creating application step:', error.message); // Log error message
+    console.error('Full error:', error); // Log full error stack
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: error.message || error, // Send specific error message
+    });
   }
 };
 
+
+
+// Controller to handle fetching the application steps based on clientId
+exports.getApplicationSteps = async (req, res) => {
+  try {
+    // const { clientId } = req.params;  // Get clientId from the request parameters
+
+    // // Validate clientId
+    // if (!clientId) {
+    //   return res.status(400).json({ success: false, message: 'clientId is required' });
+    // }
+
+    // Fetch the ApplicationStep document based on the clientId
+    const applicationStep = await applicationStepModel.findOne();
+
+    // Check if the application step exists
+    if (!applicationStep) {
+      return res.status(404).json({ success: false, message: 'Application steps not found for this client' });
+    }
+
+    // Return the fetched application step
+    res.status(200).json({ success: true, message: 'appliction step retrived success', applicationStep });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Internal Server Error', error });
+  }
+};
+
+
+
+
+
 // Controller to handle updating the status of a specific step
+// exports.updateStepStatus = async (req, res) => {
+//   try {
+//     const { step, status } = req.body;
+//     const clientId = req.params.id;
+
+//     if (!step || !status) {
+//       return res.status(400).json({ success: false, message: 'Step or status missing.' });
+//     }
+
+//     const updated = await applicationStepModel.findOneAndUpdate(
+//       { 'clientId': clientId },
+//       { [`stepNames.${step}.status`]: status },
+//       { new: true }
+//     );
+
+//     if (!updated) {
+//       return res.status(404).json({ success: false, message: 'Client or step not found.' });
+//     }
+
+//     res.status(200).json({ success: true, data: updated });
+//   } catch (error) {
+//     console.error('Error updating status:', error);
+//     res.status(500).json({ success: false, message: 'Server error.' });
+//   }
+// };
+
+
+
+
+
+
+// Controller to handle updating the status of a specific step
+
+// exports.updateStepStatus = async (req, res) => {
+//   try {
+//     const { step, status } = req.body;
+//     const clientId = req.params.id;
+
+//     if (!step || !status) {
+//       return res.status(400).json({ success: false, message: 'Step or status missing.' });
+//     }
+
+//     // Ensure the correct clientId is passed when updating the step status
+//     const updated = await ClientModel.findOneAndUpdate(
+//       { clientId: clientId },  // Make sure you're matching the clientId
+//       { [`stepNames.${step}.status`]: status }, // Update status of the specified step
+//       { new: true }
+//     );
+
+//     if (!updated) {
+//       return res.status(404).json({ success: false, message: 'Client or step not found.' });
+//     }
+
+//     res.status(200).json({ success: true, data: updated });
+//   } catch (error) {
+//     console.error('Error updating status:', error);
+//     res.status(500).json({ success: false, message: 'Server error.' });
+//   }
+// };
+
+
+
+
+
+// here upadating the status based on applicationstepmodel and above code based on stepmodel (just for testing purpose (both code work ))
+
 exports.updateStepStatus = async (req, res) => {
   try {
-    const { stepName, status } = req.body;
+    const { clientId, stepId, status } = req.body;  // Expecting clientId, stepId, and status
 
-    // Validate input
-    if (!stepName || !status) {
-      return res.status(400).json({ message: 'Step name and status are required' });
+    if (!clientId || !stepId || !status) {
+      return res.status(400).json({
+        success: false,
+        message: "Client ID, Step ID, and Status are required"
+      });
     }
 
-    // Validate status
-    if (!['pending', 'processing', 'completed'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status value' });
+    // Find the step using the clientId and stepId
+    const applicationStep = await applicationStepModel.findOne({ clientId });
+
+    if (!applicationStep) {
+      return res.status(404).json({
+        success: false,
+        message: "Application step not found"
+      });
     }
 
-    // Update the status of the specific step in the database
-    const updatedStep = await applicationStepModel.findOneAndUpdate(
-      { 'stepNames.stepName': stepName },  // Match the stepName in the stepNames object
-      { $set: { [`stepNames.${stepName}.status`]: status } }, // Update the status of the specific step
-      { new: true }
-    );
+    // Update the step's status by finding the correct step
+    const stepToUpdate = applicationStep.stepNames.get(stepId);
 
-    if (!updatedStep) {
-      return res.status(404).json({ message: 'Step not found' });
+    if (!stepToUpdate) {
+      return res.status(404).json({
+        success: false,
+        message: "Step not found"
+      });
     }
 
-    // Return the updated step as a response
-    res.status(200).json(updatedStep);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    // Update the step status
+    stepToUpdate.status = status;
+
+    // Save the updated document
+    await applicationStep.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Step status updated successfully",
+      data: applicationStep
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };

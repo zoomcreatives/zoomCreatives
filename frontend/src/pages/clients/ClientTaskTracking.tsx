@@ -467,7 +467,7 @@ export default function ClientTaskTracking({
             // console.log("Item Client ID:", item.clientId?._id);  // Log to check clientId
 
             // Check if the item belongs to the specific client
-            if (item.clientId._id === client) {
+            if (item?.clientId?._id === client) {
               // Populate the client task state based on the data type
               if (key === "application") updatedClientTasks.applications.push(item);
               if (key === "appointment") updatedClientTasks.appointment.push(item);

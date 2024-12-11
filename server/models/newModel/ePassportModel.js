@@ -6,6 +6,12 @@ const epassportSchema = new mongoose.Schema({
         required: true,
         ref: 'ClientModel'
     },
+    step:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'EpassportStepModel',
+      // required: true,
+    },
+
   mobileNo: {
     type: String,
     required: true

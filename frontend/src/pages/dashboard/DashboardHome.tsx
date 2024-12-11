@@ -171,7 +171,7 @@ export default function DashboardHome() {
       {/* Ongoing Tasks */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h2 className="text-lg font-semibold mb-4">Ongoing Tasks</h2>
-        <OngoingTasks tasks={activeTasks} />
+        <OngoingTasks />
       </div>
 
       {/* Service Requests */}

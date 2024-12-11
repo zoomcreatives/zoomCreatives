@@ -522,7 +522,7 @@ export default function ProcessFlowTab({ client, allData }: ProcessFlowTabProps)
 
     const clientProcesses = allProcesses.map((category) => ({
       ...category,
-      data: category.data.filter((process) => process.clientId._id === client), // Filter processes by client ID
+      data: category.data.filter((process) => process?.clientId?._id === client), // Filter processes by client ID
     }));
 
     setFilteredProcesses(clientProcesses);

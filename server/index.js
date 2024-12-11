@@ -19,6 +19,7 @@ const ePassportRoute = require ('./routes/newRoutes/ePassportRoute');
 const otherServicesRoute = require ('./routes/newRoutes/otherServicesRoute');
 const graphicDesignRoute = require ('./routes/newRoutes/graphicDesingRoute');
 const appointmentRoute = require ('./routes/newRoutes/appointmentRoute');
+const adminRoute = require ('./routes/newRoutes/adminRoute');
 
 
 dotenv.config();
@@ -52,6 +53,7 @@ app.use('/api/v1/ePassport', ePassportRoute);
 app.use('/api/v1/otherServices', otherServicesRoute);
 app.use('/api/v1/graphicDesign', graphicDesignRoute);
 app.use('/api/v1/appointment', appointmentRoute);
+app.use('/api/v1/admin', adminRoute);
 
 
 

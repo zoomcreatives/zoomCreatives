@@ -12,8 +12,5 @@ router.delete('/deleteVisaApplication/:id', controller.deleteApplication);
 
 
 
-router.post('/createStep', controller.createStep);
-
-
 
 module.exports = router;

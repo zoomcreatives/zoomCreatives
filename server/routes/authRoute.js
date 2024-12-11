@@ -35,4 +35,5 @@ router.get('/protectedRoute', requireLogin, controller.protectedRoute);
 router.get('/admin', requireLogin, isAdmin, controller.admin);
 
 
+
 module.exports = router;

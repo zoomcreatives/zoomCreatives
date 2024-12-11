@@ -240,7 +240,8 @@ import {
   Briefcase,
   Menu,
   X,
-  Search as SearchIcon
+  Search as SearchIcon,
+  ReceiptPoundSterlingIcon
 } from 'lucide-react';
 import GlobalSearch from './GlobalSearch';
 import NotesPanel from './notes/NotesPanel';
@@ -255,6 +256,7 @@ const getMenuItems = () => {
     { icon: Briefcase, label: 'Other Services', path: '/dashboard/other-services' },
     { icon: Palette, label: 'Graphic Design', path: '/dashboard/graphic-design' },
     { icon: Calendar, label: 'Appointments', path: '/dashboard/appointment' },
+    { icon: ReceiptPoundSterlingIcon, label: 'Reports', path: '/dashboard/reports' },
     { icon: CreditCard, label: 'Accounts & Tasks', path: '/dashboard/accounts' },
   ];
 };

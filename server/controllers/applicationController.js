@@ -110,7 +110,7 @@
 
 
 const applicationModel = require('../models/newModel/applicationModel');
-const applicationStepModel = require('../models/newModel/steps/applicationStepModel');
+
 
 // Create a new application
 exports.createApplication = async (req, res) => {
@@ -118,8 +118,7 @@ exports.createApplication = async (req, res) => {
     const { clientId, step, clientName, familyMembers, payment, ...rest } = req.body;
 
     // Calculate total payment
-    const total = (payment.visaApplicationFee + payment.translationFee) -
-                  (payment.paidAmount + payment.discount);
+    const total = (payment.visaApplicationFee + payment.translationFee) - (payment.paidAmount + payment.discount);
 
     // Prepare application data
     const applicationData = {
@@ -244,27 +243,3 @@ exports.deleteApplication = async (req, res) => {
 
 
 
-
-
-
-
-// ************step testing*******
-
-
-exports.createStep = async (req, res) => {
-  try {
-      const { stepName } = req.body; // Expecting the 'name' field in the body
-
-      // Create and save the new step
-      const newStep = new applicationStepModel({
-        stepName,  // Simply using the name as it comes without additional validation
-      });
-
-      await newStep.save();
-
-      res.status(201).json({success: true,  message: 'Step created successfully',step: newStep});
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({success: true, message: 'Error creating step', error: error.message });
-  }
-};

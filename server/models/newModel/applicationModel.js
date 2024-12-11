@@ -19,7 +19,7 @@ const applicationSchema = new mongoose.Schema(
     step:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'ApplicationStepModel',
-      // required: true,
+      required: true,
     },
 
 
@@ -55,11 +55,11 @@ const applicationSchema = new mongoose.Schema(
     },
     handledBy: {
         type: String,
-        // required: true
+        required: true
     },
     translationHandler: {
         type: String,
-        // required: true
+        required: true
     },
     deadline: {
         type: Date,

@@ -29,41 +29,9 @@ export default function ClientLogin() {
     }));
   };
 
-  // const handleSubmit = async (e: any) => {
-  //   e.preventDefault();
-  //   setError('');
-
-  //   try {
-  //     // Making API call using axios
-  //     const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/auth/login`, formData);
-
-  //     // Check if login is successful
-  //     if (response.data.success) {
-  //       // Redirect to the client portal page
-  //       toast.success(response.data.message);
-  //       setAuth({
-  //         ...auth,
-  //         user: response.data.user,
-  //         role: response.data.role,
-  //         token: response.data.token
-  //     });
-  //       localStorage.setItem('token', JSON.stringify(response.data));
-  //       axios.defaults.headers.common['Authorization'] = response.data.token;
-  //       navigate('/client-portal');
-  //     } else {
-  //       setError('Invalid email or password');
-  //     }
-  //   } catch (error:any) {
-  //     // setError('An error occurred while logging in. Please try again.');
-  //     // console.error('Login error:', error);
-  //     if(error.response){
-  //       toast.error(error.response.data.message);
-  //     }
-  //   }
-  // };
 
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
   
@@ -73,33 +41,32 @@ export default function ClientLogin() {
   
       // Check if login is successful
       if (response.data.success) {
-        // Set auth context with user data and role
         toast.success(response.data.message);
         setAuth({
           ...auth,
           user: response.data.user,
-          role: response.data.role,
-          token: response.data.token
+          role: response.data.user.role,
+          token: response.data.token,
         });
-  
         localStorage.setItem('token', JSON.stringify(response.data));
         axios.defaults.headers.common['Authorization'] = response.data.token;
   
-        // Check if the role is admin or user and navigate accordingly
-        if (response.data.role === 'admin') {
-          navigate('/'); // Redirect to Admin Dashboard
+        // Redirect based on role
+        if (response?.data?.user?.role === 'admin') {
+          navigate('/dashboard');
+        } else if (response?.data?.user?.role === 'superadmin') {
+          navigate('/dashboard');
         } else {
-          navigate('/client-portal'); // Redirect to Client Portal
+          navigate('/client-portal'); 
         }
-      } else {
-        setError('Invalid email or password');
       }
-    } catch (error: any) {
+    } catch (error:any) {
       if (error.response) {
         toast.error(error.response.data.message);
       }
     }
   };
+  
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-brand-yellow/10 to-white">

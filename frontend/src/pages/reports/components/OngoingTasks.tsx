@@ -1,83 +1,109 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { safeParse } from '../../../utils/dateUtils';
 import Button from '../../../components/Button';
+import axios from 'axios';
 
 interface TasksProps {
   tasks: {
-    applications: any[];
+    application: any[];
+    appointment: any[];
+    epassports: any[];
+    graphicDesigns: any[];
     japanVisit: any[];
-    translations: any[];
-    designs: any[];
-    epassport: any[];
     otherServices: any[];
   };
 }
 
 const ITEMS_PER_PAGE = 10;
 
-export default function OngoingTasks({ tasks }: TasksProps) {
+export default function OngoingTasks() {
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'paid' | 'due'>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [tasks, setTasks] = useState<TasksProps['tasks'] | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/appointment/fetchAllModelData`);
+        console.log('API Response:', response.data); // Log the entire response
+        if (response.data.success && response.data.allData) {
+          setTasks(response.data.allData); // Set tasks to the allData property
+        } else {
+          setError('No task data available');
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching tasks:', err);
+        setError('Failed to fetch tasks');
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, []);  // Empty dependency array ensures this runs once when the component mounts
 
   // Ensure all task arrays exist with defaults
   const {
-    applications = [],
+    application = [],
+    appointment = [],
+    epassports = [],
+    graphicDesigns = [],
     japanVisit = [],
-    translations = [],
-    designs = [],
-    epassport = [],
-    otherServices = []
-  } = tasks;
+    otherServices = [],
+  } = tasks || {};  // Default to empty arrays if tasks is null
 
-  // Combine all tasks
+  // Combine all tasks into one array
   const allTasks = [
-    ...applications.map(task => ({
+    ...application.map(task => ({
       ...task,
       type: 'Visa Application',
       status: task.visaStatus,
       amount: task.payment?.total || 0,
       paymentStatus: task.payment?.paidAmount >= task.payment?.total ? 'Paid' : 'Due'
     })),
+    ...appointment.map(task => ({
+      ...task,
+      type: 'Appointment',
+      status: task.status,
+      amount: task.amount || 0,
+      paymentStatus: task.paymentStatus || 'Due'
+    })),
+    ...epassports.map(task => ({
+      ...task,
+      type: 'ePassport',
+      status: task.applicationStatus,
+      amount: task.amount || 0,
+      paymentStatus: task.paymentStatus || 'Due'
+    })),
+    ...graphicDesigns.map(task => ({
+      ...task,
+      type: 'Design',
+      status: task.status,
+      amount: task.amount || 0,
+      paymentStatus: task.paymentStatus || 'Due'
+    })),
     ...japanVisit.map(task => ({
       ...task,
       type: 'Japan Visit',
       status: task.applicationStatus,
       amount: task.amount || 0,
-      paymentStatus: task.paymentStatus
-    })),
-    ...translations.map(task => ({
-      ...task,
-      type: 'Translation',
-      status: task.translationStatus,
-      amount: task.amount || 0,
-      paymentStatus: task.paymentStatus
-    })),
-    ...designs.map(task => ({
-      ...task,
-      type: 'Design',
-      status: task.status,
-      amount: task.amount || 0,
-      paymentStatus: task.paymentStatus
-    })),
-    ...epassport.map(task => ({
-      ...task,
-      type: 'ePassport',
-      status: task.applicationStatus,
-      amount: task.amount || 0,
-      paymentStatus: task.paymentStatus
+      paymentStatus: task.paymentStatus || 'Due'
     })),
     ...otherServices.map(task => ({
       ...task,
       type: 'Other Service',
       status: task.jobStatus,
       amount: task.amount || 0,
-      paymentStatus: task.paymentStatus
+      paymentStatus: task.paymentStatus || 'Due'
     }))
   ].filter(task => {
     // Apply payment filter
     const matchesPaymentFilter = paymentFilter === 'all' || 
-                               task.paymentStatus.toLowerCase() === paymentFilter;
+                                 task.paymentStatus.toLowerCase() === paymentFilter;
     return matchesPaymentFilter;
   }).sort((a, b) => {
     const dateA = safeParse(a.deadline);
@@ -89,6 +115,14 @@ export default function OngoingTasks({ tasks }: TasksProps) {
   const totalPages = Math.ceil(allTasks.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedTasks = allTasks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div>

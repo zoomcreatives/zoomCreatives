@@ -20,12 +20,14 @@ import DocumentsSection from './DocumentsSection';
 import ServiceRequestSection from './ServiceRequestSection';
 import ServiceRequestHistory from './ServiceRequestHistory';
 import { useAuthGlobally } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 
 export default function ClientPortal() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);  // No need for loading state anymore, as page is public
   const [auth, setAuth] = useAuthGlobally();
+  const navigate = useNavigate();
 
 
   // Simulate client data directly (or fetch it publicly)
@@ -44,9 +46,10 @@ export default function ClientPortal() {
   }, []);
 
   const handleLogout = () => {
+    toast.success('Logout successfully');
     // If logout is required (can remove this functionality if not needed)
     localStorage.removeItem('token');
-    window.location.href = '/client-login'; // Redirect to home page or login page
+    navigate('/client-login')
   };
 
   if (isLoading) {
@@ -114,7 +117,8 @@ export default function ClientPortal() {
               <FileText className="h-6 w-6 text-gray-400" />
               <h2 className="text-xl font-semibold">Tasks at Zoom Creatives</h2>
             </div>
-            <TasksSection applications={client.applications} clientId={client.id} />
+            {/* <TasksSection applications={client.applications} clientId={client.id} /> */}
+            <TasksSection />
           </div>
 
           {/* Appointments Section */}
@@ -254,3 +258,6 @@ export default function ClientPortal() {
     </div>
   );
 }
+
+
+

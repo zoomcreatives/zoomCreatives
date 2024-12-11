@@ -7,6 +7,8 @@ import Button from '../../../components/Button';
 import Input from '../../../components/Input';
 import { useAdminStore } from '../../../store/adminStore';
 import { generateStrongPassword } from '../../../utils/passwordGenerator';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const adminSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -21,10 +23,10 @@ type AdminFormData = z.infer<typeof adminSchema>;
 interface AddAdminModalProps {
   isOpen: boolean;
   onClose: () => void;
+  fetchAdmins : () => void;
 }
 
-export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
-  const { addAdmin } = useAdminStore();
+export default function AddAdminModal({ isOpen, onClose , fetchAdmins}: AddAdminModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
 
@@ -48,13 +50,26 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
     setValue('password', password);
   };
 
-  const onSubmit = (data: AdminFormData) => {
-    addAdmin({
-      ...data,
-      permissions: [],
-    });
-    reset();
-    onClose();
+  const onSubmit = async (data: AdminFormData) => {
+    try {
+      // Make the API call to create an admin
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/api/v1/admin/createAdmin`, {
+        ...data,
+        permissions: [],
+      });
+  
+      if (response.status === 201) {
+        toast.success('Admin created successfully!');
+        fetchAdmins();
+        reset(); // Reset form fields
+        onClose(); // Close the modal
+      } else {
+        toast.error('Failed to create admin. Please try again.');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('An error occurred while creating the admin.');
+    }
   };
 
   if (!isOpen) return null;
@@ -160,3 +175,4 @@ export default function AddAdminModal({ isOpen, onClose }: AddAdminModalProps) {
     </div>
   );
 }
+
